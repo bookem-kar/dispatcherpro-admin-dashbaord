@@ -10,14 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { PlanTier, CreateCompanyInput } from '@/types/domain';
+import { CreateCompanyInput } from '@/types/domain';
 import { useCreateCompany } from '@/hooks/use-companies';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -30,9 +23,17 @@ interface CreateCompanyModalProps {
 export function CreateCompanyModal({ open, onOpenChange }: CreateCompanyModalProps) {
   const [formData, setFormData] = useState<CreateCompanyInput>({
     name: '',
-    companyUid: '',
-    planTier: 'trial',
-    maxSeats: 5,
+    phoneNumber: '',
+    address: '',
+    email: '',
+    mcNumber: '',
+    website: '',
+    adminFirstName: '',
+    adminLastName: '',
+    adminEmail: '',
+    adminPhone: '',
+    phoneTollFree: '',
+    faxNumber: ''
   });
   
   const createCompany = useCreateCompany();
@@ -41,10 +42,13 @@ export function CreateCompanyModal({ open, onOpenChange }: CreateCompanyModalPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.companyUid.trim()) {
+    if (!formData.name.trim() || !formData.phoneNumber.trim() || !formData.address.trim() || 
+        !formData.email.trim() || !formData.mcNumber.trim() || !formData.website.trim() ||
+        !formData.adminFirstName.trim() || !formData.adminLastName.trim() || 
+        !formData.adminEmail.trim() || !formData.adminPhone.trim()) {
       toast({
         title: 'Validation Error',
-        description: 'Company name and UID are required.',
+        description: 'Please fill in all required fields.',
         variant: 'destructive',
       });
       return;
@@ -59,9 +63,17 @@ export function CreateCompanyModal({ open, onOpenChange }: CreateCompanyModalPro
       onOpenChange(false);
       setFormData({
         name: '',
-        companyUid: '',
-        planTier: 'trial',
-        maxSeats: 5,
+        phoneNumber: '',
+        address: '',
+        email: '',
+        mcNumber: '',
+        website: '',
+        adminFirstName: '',
+        adminLastName: '',
+        adminEmail: '',
+        adminPhone: '',
+        phoneTollFree: '',
+        faxNumber: ''
       });
     } catch (error) {
       toast({
@@ -72,27 +84,17 @@ export function CreateCompanyModal({ open, onOpenChange }: CreateCompanyModalPro
     }
   };
 
-  const handleInputChange = (field: keyof CreateCompanyInput, value: string | number) => {
+  const handleInputChange = (field: keyof CreateCompanyInput, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const generateCompanyUid = () => {
-    if (!formData.name) return;
-    const uid = formData.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-    setFormData(prev => ({ ...prev, companyUid: uid }));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Company</DialogTitle>
           <DialogDescription>
-            Add a new company to the platform. They will be created with trial status.
+            Add a new company to the platform. An admin user will be created for the company.
           </DialogDescription>
         </DialogHeader>
         
@@ -109,55 +111,123 @@ export function CreateCompanyModal({ open, onOpenChange }: CreateCompanyModalPro
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="companyUid">Company UID</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={generateCompanyUid}
-                disabled={!formData.name}
-              >
-                Generate
-              </Button>
-            </div>
+            <Label htmlFor="phoneTollFree">Company Phone Toll Free</Label>
             <Input
-              id="companyUid"
-              value={formData.companyUid}
-              onChange={(e) => handleInputChange('companyUid', e.target.value)}
-              placeholder="unique-company-id"
+              id="phoneTollFree"
+              value={formData.phoneTollFree}
+              onChange={(e) => handleInputChange('phoneTollFree', e.target.value)}
+              placeholder="800-555-0123"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phoneNumber">Company Phone Number</Label>
+            <Input
+              id="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+              placeholder="555-123-4567"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="planTier">Plan Tier</Label>
-            <Select 
-              value={formData.planTier} 
-              onValueChange={(value: PlanTier) => handleInputChange('planTier', value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="trial">Trial</SelectItem>
-                <SelectItem value="standard">Standard</SelectItem>
-                <SelectItem value="pro">Pro</SelectItem>
-                <SelectItem value="enterprise">Enterprise</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="faxNumber">Company Fax Number</Label>
+            <Input
+              id="faxNumber"
+              value={formData.faxNumber}
+              onChange={(e) => handleInputChange('faxNumber', e.target.value)}
+              placeholder="555-123-4568"
+            />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="maxSeats">Max Seats</Label>
+            <Label htmlFor="address">Company Address</Label>
             <Input
-              id="maxSeats"
-              type="number"
-              min="1"
-              max="1000"
-              value={formData.maxSeats || ''}
-              onChange={(e) => handleInputChange('maxSeats', parseInt(e.target.value) || 0)}
-              placeholder="5"
+              id="address"
+              value={formData.address}
+              onChange={(e) => handleInputChange('address', e.target.value)}
+              placeholder="123 Main St, City, ST 12345"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Company Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              placeholder="admin@company.com"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="mcNumber">Company MC</Label>
+            <Input
+              id="mcNumber"
+              value={formData.mcNumber}
+              onChange={(e) => handleInputChange('mcNumber', e.target.value)}
+              placeholder="MC-123456"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="website">Company Website</Label>
+            <Input
+              id="website"
+              value={formData.website}
+              onChange={(e) => handleInputChange('website', e.target.value)}
+              placeholder="https://company.com"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="adminFirstName">User First Name</Label>
+            <Input
+              id="adminFirstName"
+              value={formData.adminFirstName}
+              onChange={(e) => handleInputChange('adminFirstName', e.target.value)}
+              placeholder="John"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="adminLastName">User Last Name</Label>
+            <Input
+              id="adminLastName"
+              value={formData.adminLastName}
+              onChange={(e) => handleInputChange('adminLastName', e.target.value)}
+              placeholder="Doe"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="adminEmail">User Email Address</Label>
+            <Input
+              id="adminEmail"
+              type="email"
+              value={formData.adminEmail}
+              onChange={(e) => handleInputChange('adminEmail', e.target.value)}
+              placeholder="john@company.com"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="adminPhone">User Phone Number</Label>
+            <Input
+              id="adminPhone"
+              value={formData.adminPhone}
+              onChange={(e) => handleInputChange('adminPhone', e.target.value)}
+              placeholder="555-123-4567"
+              required
             />
           </div>
 

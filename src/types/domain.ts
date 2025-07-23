@@ -17,6 +17,14 @@ export interface Company {
   suspendedAt?: string;
   suspendedReason?: string;
   lastActivityAt?: string;
+  // Company details
+  phoneTollFree?: string;
+  phoneNumber: string;
+  faxNumber?: string;
+  address: string;
+  email: string;
+  mcNumber: string;
+  website: string;
   // integration markers (fill later)
   bubbleCompanyId?: string;  // Bubble unique id if needed
   superDispatchAcct?: string;
@@ -82,10 +90,18 @@ export interface ActivityFilter {
 // Input types for creation
 export interface CreateCompanyInput {
   name: string;
-  companyUid: string;
-  planTier: PlanTier;
-  maxSeats?: number;
-  adminUserId?: string;
+  phoneTollFree?: string;
+  phoneNumber: string;
+  faxNumber?: string;
+  address: string;
+  email: string;
+  mcNumber: string;
+  website: string;
+  // Admin user details
+  adminFirstName: string;
+  adminLastName: string;
+  adminEmail: string;
+  adminPhone: string;
 }
 
 export interface CreateUserInput {

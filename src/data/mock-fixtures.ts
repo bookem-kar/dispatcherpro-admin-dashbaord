@@ -14,6 +14,12 @@ export const mockCompanies: Company[] = [
     activeUserCount: 23,
     createdAt: '2024-01-15T08:00:00Z',
     lastActivityAt: '2024-07-22T14:30:00Z',
+    phoneNumber: '555-123-4567',
+    address: '123 Main St, Chicago, IL 60601',
+    email: 'admin@abclogistics.com',
+    mcNumber: 'MC-123456',
+    website: 'https://abclogistics.com',
+    phoneTollFree: '800-555-0123',
     bubbleCompanyId: 'bubble-abc-001',
     superDispatchAcct: 'abc-super-disp'
   },
@@ -28,6 +34,11 @@ export const mockCompanies: Company[] = [
     activeUserCount: 67,
     createdAt: '2024-02-03T10:15:00Z',
     lastActivityAt: '2024-07-23T09:45:00Z',
+    phoneNumber: '555-234-5678',
+    address: '456 Oak Ave, Dallas, TX 75201',
+    email: 'contact@fasttrackfreight.com',
+    mcNumber: 'MC-234567',
+    website: 'https://fasttrackfreight.com',
     bubbleCompanyId: 'bubble-fast-002'
   },
   {
@@ -43,6 +54,12 @@ export const mockCompanies: Company[] = [
     suspendedAt: '2024-07-20T16:00:00Z',
     suspendedReason: 'Payment overdue - 30 days',
     lastActivityAt: '2024-07-19T11:22:00Z',
+    phoneNumber: '555-345-6789',
+    address: '789 Pine St, Atlanta, GA 30309',
+    email: 'info@metrodispatch.com',
+    mcNumber: 'MC-345678',
+    website: 'https://metrodispatch.com',
+    faxNumber: '555-345-6790',
     bubbleCompanyId: 'bubble-metro-003'
   },
   {
@@ -55,7 +72,12 @@ export const mockCompanies: Company[] = [
     maxSeats: 10,
     activeUserCount: 5,
     createdAt: '2024-07-18T09:30:00Z',
-    lastActivityAt: '2024-07-23T08:15:00Z'
+    lastActivityAt: '2024-07-23T08:15:00Z',
+    phoneNumber: '555-456-7890',
+    address: '321 Elm St, Phoenix, AZ 85001',
+    email: 'admin@highwayheroes.com',
+    mcNumber: 'MC-456789',
+    website: 'https://highwayheroes.com'
   },
   {
     id: 'comp-5',
@@ -68,6 +90,12 @@ export const mockCompanies: Company[] = [
     activeUserCount: 41,
     createdAt: '2023-11-22T11:45:00Z',
     lastActivityAt: '2024-07-23T13:20:00Z',
+    phoneNumber: '555-567-8901',
+    address: '654 Maple Dr, Denver, CO 80202',
+    email: 'contact@elitetransport.com',
+    mcNumber: 'MC-567890',
+    website: 'https://elitetransport.com',
+    phoneTollFree: '800-555-0456',
     bubbleCompanyId: 'bubble-elite-005',
     centralDispatchAcct: 'elite-central-disp'
   }

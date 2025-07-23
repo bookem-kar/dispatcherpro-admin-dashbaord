@@ -49,17 +49,31 @@ export class MockCompanyService implements CompanyService {
   }
 
   async createCompany(input: CreateCompanyInput): Promise<Company> {
+    // Generate a unique company UID from the name
+    const companyUid = input.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    
     const newCompany: Company = {
       id: `comp-${Date.now()}`,
       name: input.name,
-      companyUid: input.companyUid,
+      companyUid,
       status: 'trial', // New companies start on trial
-      planTier: input.planTier,
-      adminUserId: input.adminUserId,
-      maxSeats: input.maxSeats || 10,
+      planTier: 'trial',
+      adminUserId: undefined, // Will be set when admin user is created
+      maxSeats: 10,
       activeUserCount: 0,
       createdAt: new Date().toISOString(),
-      lastActivityAt: new Date().toISOString()
+      lastActivityAt: new Date().toISOString(),
+      phoneNumber: input.phoneNumber,
+      address: input.address,
+      email: input.email,
+      mcNumber: input.mcNumber,
+      website: input.website,
+      phoneTollFree: input.phoneTollFree,
+      faxNumber: input.faxNumber
     };
 
     this.companies.push(newCompany);
@@ -71,8 +85,9 @@ export class MockCompanyService implements CompanyService {
       targetType: 'company',
       targetId: newCompany.id,
       meta: { 
-        planTier: input.planTier,
-        adminUserId: input.adminUserId,
+        adminEmail: input.adminEmail,
+        adminFirstName: input.adminFirstName,
+        adminLastName: input.adminLastName,
         createdBy: 'platform_admin' // In real app, get from auth context
       }
     });

@@ -18,10 +18,10 @@ const navigation = [
 
 export function Sidebar() {
   return (
-    <div className="w-64 bg-card border-r border-border flex flex-col">
+    <div className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
       {/* Logo/Brand */}
-      <div className="p-6 border-b border-border">
-        <h1 className="text-xl font-bold text-foreground">Platform Admin</h1>
+      <div className="p-6 border-b border-sidebar-border">
+        <h1 className="text-xl font-bold text-sidebar-foreground">Platform Admin</h1>
       </div>
 
       {/* Navigation */}
@@ -34,8 +34,8 @@ export function Sidebar() {
               cn(
                 'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                 isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                  : 'text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent'
               )
             }
           >
@@ -46,15 +46,15 @@ export function Sidebar() {
       </nav>
 
       {/* Settings */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t border-sidebar-border">
         <NavLink
           to="/settings"
           className={({ isActive }) =>
             cn(
               'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
               isActive
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                : 'text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent'
             )
           }
         >

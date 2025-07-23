@@ -1,0 +1,60 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useServices } from '@/providers/service-provider';
+import { PlatformUser, CreateUserInput, UserFilter } from '@/types/domain';
+
+export function useUsers(filter?: UserFilter) {
+  const { userService } = useServices();
+  
+  return useQuery({
+    queryKey: ['users', filter],
+    queryFn: () => userService.listUsers(filter),
+  });
+}
+
+export function useUser(id: string) {
+  const { userService } = useServices();
+  
+  return useQuery({
+    queryKey: ['users', id],
+    queryFn: () => userService.getUser(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateUser() {
+  const { userService } = useServices();
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (input: CreateUserInput) => userService.createUser(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+    },
+  });
+}
+
+export function useSuspendUser() {
+  const { userService } = useServices();
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) => 
+      userService.suspendUser(id, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}
+
+export function useReinstateUser() {
+  const { userService } = useServices();
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id: string) => userService.reinstateUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}

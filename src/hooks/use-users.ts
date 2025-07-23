@@ -58,3 +58,16 @@ export function useReinstateUser() {
     },
   });
 }
+
+export function useDeleteUser() {
+  const { userService } = useServices();
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id: string) => userService.deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+    },
+  });
+}

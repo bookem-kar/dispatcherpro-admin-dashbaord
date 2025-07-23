@@ -173,6 +173,33 @@ export class MockUserService implements UserService {
     return reinstated;
   }
 
+  async deleteUser(id: string): Promise<void> {
+    const userIndex = this.users.findIndex(u => u.id === id);
+    if (userIndex === -1) {
+      throw new Error(`User with id ${id} not found`);
+    }
+
+    const user = this.users[userIndex];
+    this.users.splice(userIndex, 1);
+
+    // Log deletion
+    await this.activityService.logEvent({
+      companyId: user.companyId,
+      type: 'user.deleted',
+      targetType: 'user',
+      targetId: id,
+      meta: { 
+        deletedUser: {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role
+        },
+        deletedBy: 'platform_admin'
+      }
+    });
+  }
+
   // Helper methods for testing/dev
   reset(): void {
     this.users = [...mockUsers];

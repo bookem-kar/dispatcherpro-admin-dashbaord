@@ -31,6 +31,7 @@ export interface UserService {
   updateUser(id: string, patch: Partial<PlatformUser>): Promise<PlatformUser>;
   suspendUser(id: string, reason?: string): Promise<PlatformUser>;
   reinstateUser(id: string): Promise<PlatformUser>;
+  deleteUser(id: string): Promise<void>;
 }
 
 export interface ActivityService {

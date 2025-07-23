@@ -84,8 +84,35 @@ export function CreateCompanyModal({ open, onOpenChange }: CreateCompanyModalPro
     }
   };
 
+  const formatPhoneNumber = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    const limited = cleaned.slice(0, 10);
+    if (limited.length >= 6) {
+      return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`;
+    } else if (limited.length >= 3) {
+      return `${limited.slice(0, 3)}-${limited.slice(3)}`;
+    }
+    return limited;
+  };
+
   const handleInputChange = (field: keyof CreateCompanyInput, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    if (field === 'phoneNumber' || field === 'phoneTollFree' || field === 'faxNumber' || field === 'adminPhone') {
+      const formatted = formatPhoneNumber(value);
+      setFormData(prev => ({ ...prev, [field]: formatted }));
+    } else if (field === 'mcNumber') {
+      const numbersOnly = value.replace(/\D/g, '');
+      setFormData(prev => ({ ...prev, [field]: numbersOnly }));
+    } else if (field === 'email' || field === 'adminEmail') {
+      setFormData(prev => ({ ...prev, [field]: value.toLowerCase().trim() }));
+    } else if (field === 'website') {
+      let website = value.trim();
+      if (website && !website.startsWith('http://') && !website.startsWith('https://')) {
+        website = `https://${website}`;
+      }
+      setFormData(prev => ({ ...prev, [field]: website }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   return (

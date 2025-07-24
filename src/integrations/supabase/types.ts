@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      api_credentials: {
+        Row: {
+          api_key: string
+          auth_token: string | null
+          base_url: string | null
+          created_at: string
+          credential_name: string
+          credential_type: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          user_id: string
+          webhook_url: string | null
+        }
+        Insert: {
+          api_key: string
+          auth_token?: string | null
+          base_url?: string | null
+          created_at?: string
+          credential_name: string
+          credential_type: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id: string
+          webhook_url?: string | null
+        }
+        Update: {
+          api_key?: string
+          auth_token?: string | null
+          base_url?: string | null
+          created_at?: string
+          credential_name?: string
+          credential_type?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id?: string
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      workflow_logs: {
+        Row: {
+          company_id: string
+          completed_at: string | null
+          error_message: string | null
+          executed_at: string
+          id: string
+          n8n_execution_id: string | null
+          request_payload: Json | null
+          response_data: Json | null
+          status: string
+          user_id: string
+          workflow_type: string
+        }
+        Insert: {
+          company_id: string
+          completed_at?: string | null
+          error_message?: string | null
+          executed_at?: string
+          id?: string
+          n8n_execution_id?: string | null
+          request_payload?: Json | null
+          response_data?: Json | null
+          status: string
+          user_id: string
+          workflow_type?: string
+        }
+        Update: {
+          company_id?: string
+          completed_at?: string | null
+          error_message?: string | null
+          executed_at?: string
+          id?: string
+          n8n_execution_id?: string | null
+          request_payload?: Json | null
+          response_data?: Json | null
+          status?: string
+          user_id?: string
+          workflow_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCompanyService, useEmailService } from '@/providers/service-provider';
 import type { CompanyFilter, CreateCompanyInput } from '@/types/domain';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useCompanies(filter?: CompanyFilter) {
   const companyService = useCompanyService();
@@ -31,7 +32,41 @@ export function useCreateCompany() {
   const { toast } = useToast();
   
   return useMutation({
-    mutationFn: (input: CreateCompanyInput) => companyService.createCompany(input),
+    mutationFn: async (input: CreateCompanyInput) => {
+      // Create the company first
+      const company = await companyService.createCompany(input);
+      
+      // Trigger n8n workflow after successful creation
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          const response = await supabase.functions.invoke('trigger-n8n-workflow', {
+            body: { companyData: company },
+            headers: {
+              Authorization: `Bearer ${session.access_token}`
+            }
+          });
+          
+          if (response.error) {
+            console.error('n8n workflow error:', response.error);
+            toast({
+              title: "Warning",
+              description: "Company created but workflow automation failed.",
+              variant: "destructive"
+            });
+          }
+        }
+      } catch (workflowError) {
+        console.error('Workflow trigger error:', workflowError);
+        toast({
+          title: "Warning", 
+          description: "Company created but workflow automation failed.",
+          variant: "destructive"
+        });
+      }
+      
+      return company;
+    },
     onSuccess: (company) => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
       queryClient.invalidateQueries({ queryKey: ['metrics'] });

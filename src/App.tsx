@@ -11,6 +11,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import { Companies } from "@/pages/Companies";
 import { Users } from "@/pages/Users";
 import { Activity } from "@/pages/Activity";
+import { ApiSettings } from "@/pages/ApiSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="companies" element={<Companies />} />
               <Route path="users" element={<Users />} />
               <Route path="activity" element={<Activity />} />
+              <Route path="api-settings" element={<ApiSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

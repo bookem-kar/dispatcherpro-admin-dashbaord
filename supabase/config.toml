@@ -1,1 +1,4 @@
 project_id = "mbngbrdmzvpsnpcnesjv"
+
+[functions.call-company-webhook]
+verify_jwt = false

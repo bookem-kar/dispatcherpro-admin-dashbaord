@@ -36,6 +36,22 @@ export function useCreateCompany() {
       // Create the company first
       const company = await companyService.createCompany(input);
       
+      // Call the webhook with form data
+      try {
+        console.log('Calling webhook with form data:', input);
+        const webhookResponse = await supabase.functions.invoke('call-company-webhook', {
+          body: input
+        });
+        
+        if (webhookResponse.error) {
+          console.error('Webhook call failed:', webhookResponse.error);
+        } else {
+          console.log('Webhook called successfully:', webhookResponse.data);
+        }
+      } catch (error) {
+        console.error('Error calling webhook:', error);
+      }
+      
       // Trigger n8n workflow after successful creation
       try {
         const { data: { session } } = await supabase.auth.getSession();

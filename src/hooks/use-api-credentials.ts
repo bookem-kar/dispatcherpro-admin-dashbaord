@@ -60,12 +60,34 @@ export function useApiCredentials() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Prepare the payload based on credential type
+      const basePayload = {
+        user_id: user.id,
+        credential_type: input.credential_type,
+        credential_name: input.credential_name,
+        is_active: true
+      };
+
+      let insertPayload;
+      if (input.credential_type === 'bubble_io') {
+        insertPayload = {
+          ...basePayload,
+          base_url: input.base_url,
+          api_key: input.api_key || ''
+        };
+      } else if (input.credential_type === 'n8n') {
+        insertPayload = {
+          ...basePayload,
+          webhook_url: input.webhook_url,
+          auth_token: input.auth_token
+        };
+      } else {
+        throw new Error('Invalid credential type');
+      }
+
       const { data, error } = await supabase
         .from('api_credentials')
-        .insert({
-          user_id: user.id,
-          ...input
-        })
+        .insert(insertPayload)
         .select()
         .single();
 

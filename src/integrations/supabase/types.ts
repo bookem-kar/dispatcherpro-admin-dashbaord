@@ -16,7 +16,7 @@ export type Database = {
     Tables: {
       api_credentials: {
         Row: {
-          api_key: string
+          api_key: string | null
           auth_token: string | null
           base_url: string | null
           created_at: string
@@ -29,7 +29,7 @@ export type Database = {
           webhook_url: string | null
         }
         Insert: {
-          api_key: string
+          api_key?: string | null
           auth_token?: string | null
           base_url?: string | null
           created_at?: string
@@ -42,7 +42,7 @@ export type Database = {
           webhook_url?: string | null
         }
         Update: {
-          api_key?: string
+          api_key?: string | null
           auth_token?: string | null
           base_url?: string | null
           created_at?: string

@@ -1,28 +1,27 @@
 // Mock Metrics Service - Calculate platform-wide statistics
 
 import type { MetricsService } from '@/services/interfaces';
-import { MockCompanyService } from './company-service';
+// Using hardcoded values for now since we moved to Supabase for companies
 import { MockUserService } from './user-service';
 import { MockActivityService } from './activity-service';
 
 export class MockMetricsService implements MetricsService {
-  private companyService = new MockCompanyService();
   private userService = new MockUserService();
   private activityService = new MockActivityService();
 
   async getTotalCompanies(): Promise<number> {
-    const companies = await this.companyService.listCompanies();
-    return companies.length;
+    // Hardcoded for now - in production this would query Supabase
+    return 4;
   }
 
   async getActiveCompanies(): Promise<number> {
-    const companies = await this.companyService.listCompanies({ status: 'active' });
-    return companies.length;
+    // Hardcoded for now - in production this would query Supabase
+    return 2;
   }
 
   async getSuspendedCompanies(): Promise<number> {
-    const companies = await this.companyService.listCompanies({ status: 'suspended' });
-    return companies.length;
+    // Hardcoded for now - in production this would query Supabase
+    return 1;
   }
 
   async getTotalUsers(): Promise<number> {

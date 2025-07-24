@@ -9,12 +9,12 @@ import type {
   MetricsService 
 } from '@/services/interfaces';
 import { 
-  MockCompanyService, 
   MockUserService, 
   MockActivityService, 
   MockEmailService, 
   MockMetricsService 
 } from '@/services/mock';
+import { SupabaseCompanyService } from '@/services/supabase';
 
 interface ServiceContextValue {
   companyService: CompanyService;
@@ -40,7 +40,7 @@ export function ServiceProvider({ children, mode = 'mock' }: ServiceProviderProp
       case 'mock':
       default:
         return {
-          companyService: new MockCompanyService(),
+          companyService: new SupabaseCompanyService(),
           userService: new MockUserService(),
           activityService: new MockActivityService(),
           emailService: new MockEmailService(),

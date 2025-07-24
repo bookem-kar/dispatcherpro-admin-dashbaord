@@ -6,10 +6,10 @@ import type {
   NewActivityEvent 
 } from '@/types/domain';
 import type { ActivityService } from '@/services/interfaces';
-import { mockActivityEvents, generateMockActivity } from '@/data/mock-fixtures';
+import { mockActivityEvents } from '@/data/mock-fixtures';
 
 export class MockActivityService implements ActivityService {
-  private events: ActivityEvent[] = generateMockActivity(100); // Start with rich data
+  private events: ActivityEvent[] = [...mockActivityEvents]; // Start with mock data
 
   async listActivity(filter?: ActivityFilter): Promise<ActivityEvent[]> {
     let result = [...this.events];
@@ -79,7 +79,7 @@ export class MockActivityService implements ActivityService {
 
   // Helper methods for testing/dev
   reset(): void {
-    this.events = generateMockActivity(100);
+    this.events = [...mockActivityEvents];
   }
 
   getAll(): ActivityEvent[] {

@@ -1,6 +1,6 @@
 // Mock Services Barrel Export
 
-export { MockCompanyService } from './company-service';
+// MockCompanyService removed - using SupabaseCompanyService instead
 export { MockUserService } from './user-service';
 export { MockActivityService } from './activity-service';
 export { MockEmailService } from './email-service';

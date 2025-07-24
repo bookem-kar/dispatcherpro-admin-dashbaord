@@ -26,8 +26,7 @@ import { useState } from 'react';
 const statusColors: Record<CompanyStatus, string> = {
   active: 'bg-green-100 text-green-800',
   suspended: 'bg-red-100 text-red-800',
-  trial: 'bg-blue-100 text-blue-800',
-  closed: 'bg-gray-100 text-gray-800',
+  inactive: 'bg-gray-100 text-gray-800',
 };
 
 interface CompaniesTableProps {

@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_events: {
+        Row: {
+          company_id: string | null
+          id: string
+          meta: Json | null
+          target_id: string | null
+          target_type: string | null
+          timestamp: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          id?: string
+          meta?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+          timestamp?: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          id?: string
+          meta?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+          timestamp?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "platform_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_credentials: {
         Row: {
           api_key: string | null
@@ -55,6 +103,155 @@ export type Database = {
           webhook_url?: string | null
         }
         Relationships: []
+      }
+      companies: {
+        Row: {
+          active_user_count: number | null
+          address: string
+          admin_email: string
+          admin_first_name: string
+          admin_last_name: string
+          admin_phone: string
+          admin_user_id: string | null
+          bubble_company_id: string | null
+          central_dispatch_acct: string | null
+          company_string_uuid: string | null
+          company_uid: string
+          created_at: string
+          email: string
+          fax_number: string | null
+          id: string
+          last_activity_at: string | null
+          max_seats: number | null
+          mc_number: string
+          name: string
+          phone_number: string
+          phone_toll_free: string | null
+          plan_tier: string
+          status: string
+          super_dispatch_acct: string | null
+          suspended_at: string | null
+          suspended_reason: string | null
+          updated_at: string
+          website: string
+        }
+        Insert: {
+          active_user_count?: number | null
+          address: string
+          admin_email: string
+          admin_first_name: string
+          admin_last_name: string
+          admin_phone: string
+          admin_user_id?: string | null
+          bubble_company_id?: string | null
+          central_dispatch_acct?: string | null
+          company_string_uuid?: string | null
+          company_uid: string
+          created_at?: string
+          email: string
+          fax_number?: string | null
+          id?: string
+          last_activity_at?: string | null
+          max_seats?: number | null
+          mc_number: string
+          name: string
+          phone_number: string
+          phone_toll_free?: string | null
+          plan_tier?: string
+          status?: string
+          super_dispatch_acct?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
+          updated_at?: string
+          website: string
+        }
+        Update: {
+          active_user_count?: number | null
+          address?: string
+          admin_email?: string
+          admin_first_name?: string
+          admin_last_name?: string
+          admin_phone?: string
+          admin_user_id?: string | null
+          bubble_company_id?: string | null
+          central_dispatch_acct?: string | null
+          company_string_uuid?: string | null
+          company_uid?: string
+          created_at?: string
+          email?: string
+          fax_number?: string | null
+          id?: string
+          last_activity_at?: string | null
+          max_seats?: number | null
+          mc_number?: string
+          name?: string
+          phone_number?: string
+          phone_toll_free?: string | null
+          plan_tier?: string
+          status?: string
+          super_dispatch_acct?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
+          updated_at?: string
+          website?: string
+        }
+        Relationships: []
+      }
+      platform_users: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          created_by_user_id: string | null
+          email: string
+          first_name: string | null
+          id: string
+          is_active: boolean
+          is_suspended: boolean
+          last_activity_at: string | null
+          last_login_at: string | null
+          last_name: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          email: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean
+          is_suspended?: boolean
+          last_activity_at?: string | null
+          last_login_at?: string | null
+          last_name?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean
+          is_suspended?: boolean
+          last_activity_at?: string | null
+          last_login_at?: string | null
+          last_name?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_users_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workflow_logs: {
         Row: {

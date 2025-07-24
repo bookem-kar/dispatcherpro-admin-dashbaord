@@ -1,6 +1,6 @@
 // Core domain types for DispatcherPro Platform Admin
 
-export type CompanyStatus = 'active' | 'suspended' | 'trial' | 'closed';
+export type CompanyStatus = 'active' | 'suspended' | 'inactive';
 export type PlanTier = 'trial' | 'standard' | 'pro' | 'enterprise';
 export type UserRole = 'platform_admin' | 'platform_support' | 'company_admin' | 'dispatcher' | 'sales' | 'read_only';
 
@@ -8,12 +8,14 @@ export interface Company {
   id: string;              // Supabase UUID
   name: string;
   companyUid: string;      // Mirrors Bubble company_uid
+  companyStringUuid?: string; // Additional UUID for outside database linking
   status: CompanyStatus;
   planTier: PlanTier;
   adminUserId?: string;    // convenience pointer
   maxSeats?: number;
   activeUserCount?: number;
   createdAt: string;       // ISO
+  updatedAt: string;
   suspendedAt?: string;
   suspendedReason?: string;
   lastActivityAt?: string;
@@ -25,6 +27,11 @@ export interface Company {
   email: string;
   mcNumber: string;
   website: string;
+  // Admin user details
+  adminFirstName: string;
+  adminLastName: string;
+  adminEmail: string;
+  adminPhone: string;
   // integration markers (fill later)
   bubbleCompanyId?: string;  // Bubble unique id if needed
   superDispatchAcct?: string;

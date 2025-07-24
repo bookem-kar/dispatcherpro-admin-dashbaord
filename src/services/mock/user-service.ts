@@ -7,7 +7,7 @@ import type {
   NewActivityEvent 
 } from '@/types/domain';
 import type { UserService } from '@/services/interfaces';
-import { mockUsers, getMockUser } from '@/data/mock-fixtures';
+import { mockUsers } from '@/data/mock-fixtures';
 import { MockActivityService } from './activity-service';
 
 export class MockUserService implements UserService {

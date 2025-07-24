@@ -27,74 +27,36 @@ export function useCompany(id: string) {
 }
 
 export function useCreateCompany() {
-  const companyService = useCompanyService();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
   return useMutation({
     mutationFn: async (input: CreateCompanyInput) => {
-      // Create the company first
-      const company = await companyService.createCompany(input);
+      // Only call the webhook - n8n will handle company creation
+      console.log('Calling webhook with form data:', input);
+      const webhookResponse = await supabase.functions.invoke('call-company-webhook', {
+        body: input
+      });
       
-      // Call the webhook with form data
-      try {
-        console.log('Calling webhook with form data:', input);
-        const webhookResponse = await supabase.functions.invoke('call-company-webhook', {
-          body: input
-        });
-        
-        if (webhookResponse.error) {
-          console.error('Webhook call failed:', webhookResponse.error);
-        } else {
-          console.log('Webhook called successfully:', webhookResponse.data);
-        }
-      } catch (error) {
-        console.error('Error calling webhook:', error);
+      if (webhookResponse.error) {
+        throw new Error(`Webhook call failed: ${webhookResponse.error.message}`);
       }
       
-      // Trigger n8n workflow after successful creation
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.access_token) {
-          const response = await supabase.functions.invoke('trigger-n8n-workflow', {
-            body: { companyData: company },
-            headers: {
-              Authorization: `Bearer ${session.access_token}`
-            }
-          });
-          
-          if (response.error) {
-            console.error('n8n workflow error:', response.error);
-            toast({
-              title: "Warning",
-              description: "Company created but workflow automation failed.",
-              variant: "destructive"
-            });
-          }
-        }
-      } catch (workflowError) {
-        console.error('Workflow trigger error:', workflowError);
-        toast({
-          title: "Warning", 
-          description: "Company created but workflow automation failed.",
-          variant: "destructive"
-        });
-      }
-      
-      return company;
+      console.log('Webhook called successfully:', webhookResponse.data);
+      return webhookResponse.data;
     },
-    onSuccess: (company) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
       queryClient.invalidateQueries({ queryKey: ['metrics'] });
       toast({
-        title: 'Company Created',
-        description: `${company.name} has been successfully created.`,
+        title: 'Company Submission Sent',
+        description: 'Company information has been submitted successfully. They will receive activation instructions.',
       });
     },
     onError: (error) => {
       toast({
         title: 'Error',
-        description: 'Failed to create company. Please try again.',
+        description: 'Failed to submit company information. Please try again.',
         variant: 'destructive',
       });
     },

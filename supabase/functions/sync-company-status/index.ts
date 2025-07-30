@@ -52,7 +52,7 @@ serve(async (req) => {
     const payload = {
       company_uuid: companyUid,
       bubble_company_id: bubbleCompanyId,
-      status: status
+      active_status: status
     }
 
     console.log('Sending payload to Bubble.io:', payload)

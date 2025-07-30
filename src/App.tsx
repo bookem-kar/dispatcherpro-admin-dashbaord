@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
 import { Companies } from "@/pages/Companies";
+import { CompanyDetails } from "@/pages/CompanyDetails";
 import { Users } from "@/pages/Users";
 import { Activity } from "@/pages/Activity";
 import { ApiSettings } from "@/pages/ApiSettings";
@@ -33,6 +34,7 @@ const App = () => (
             }>
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="companies" element={<Companies />} />
+              <Route path="companies/:id" element={<CompanyDetails />} />
               <Route path="users" element={<Users />} />
               <Route path="activity" element={<Activity />} />
               <Route path="api-settings" element={<ApiSettings />} />

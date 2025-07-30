@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -11,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, Plus, MoreHorizontal } from 'lucide-react';
+import { Search, Plus, MoreHorizontal, Eye } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +36,7 @@ interface CompaniesTableProps {
 
 export function CompaniesTable({ onCreateCompany }: CompaniesTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
   const { data: companies = [], isLoading } = useCompanies();
   const suspendCompany = useSuspendCompany();
   const reinstateCompany = useReinstateCompany();
@@ -162,7 +164,10 @@ export function CompaniesTable({ onCreateCompany }: CompaniesTableProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate(`/companies/${company.id}`)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Details
+                        </DropdownMenuItem>
                         <DropdownMenuItem>View Users</DropdownMenuItem>
                         {company.status === 'suspended' ? (
                           <DropdownMenuItem onClick={() => handleReinstate(company)}>

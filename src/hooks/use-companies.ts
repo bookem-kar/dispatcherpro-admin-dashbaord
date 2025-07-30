@@ -143,3 +143,33 @@ export function useReinstateCompany() {
     },
   });
 }
+
+// Update a company
+export function useUpdateCompany() {
+  const queryClient = useQueryClient();
+  const companyService = useCompanyService();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      return companyService.updateCompany(id, data);
+    },
+    onSuccess: (company) => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      queryClient.invalidateQueries({ queryKey: ['company', company.id] });
+      
+      toast({
+        title: "Company Updated",
+        description: `${company.name} has been updated successfully.`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update company. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+}

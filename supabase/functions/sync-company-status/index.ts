@@ -51,7 +51,7 @@ serve(async (req) => {
     // Prepare payload for external API
     const payload = {
       company_uid: companyUid,
-      bubble_company_id: bubbleCompanyId,
+      company_uuid: bubbleCompanyId,
       active_status: status
     }
 

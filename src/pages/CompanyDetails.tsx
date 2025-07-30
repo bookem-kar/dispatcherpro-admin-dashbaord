@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Shield, ShieldCheck } from 'lucide-react';
 import { useCompany, useSuspendCompany, useReinstateCompany } from '@/hooks/use-companies';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -52,6 +53,24 @@ export function CompanyDetails() {
     
     try {
       await reinstateCompany.mutateAsync(company.id);
+      
+      // Sync with Bubble.io after successful reinstatement
+      if (company.bubbleCompanyId) {
+        try {
+          await supabase.functions.invoke('sync-company-status', {
+            body: {
+              companyUid: company.companyUid,
+              bubbleCompanyId: company.bubbleCompanyId,
+              status: 'active'
+            }
+          });
+          console.log('Company status synced with Bubble.io');
+        } catch (syncError) {
+          console.warn('Failed to sync with Bubble.io:', syncError);
+          // Don't fail the whole operation if sync fails
+        }
+      }
+      
       toast({
         title: "Company Reinstated",
         description: `${company.name} has been reinstated successfully.`,

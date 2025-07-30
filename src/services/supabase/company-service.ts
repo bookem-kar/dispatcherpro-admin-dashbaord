@@ -177,7 +177,27 @@ export class SupabaseCompanyService implements CompanyService {
       throw new Error(`Failed to suspend company: ${error.message}`);
     }
 
-    return mapSupabaseToCompany(data);
+    const company = mapSupabaseToCompany(data);
+
+    // Sync with external Bubble.io API
+    if (company.bubbleCompanyId) {
+      try {
+        console.log('Syncing company suspension with external API...');
+        await supabase.functions.invoke('sync-company-status', {
+          body: {
+            companyUid: company.companyUid,
+            bubbleCompanyId: company.bubbleCompanyId,
+            status: 'suspended'
+          }
+        });
+        console.log('External sync successful for suspended company');
+      } catch (syncError) {
+        console.warn('External sync failed for suspended company:', syncError);
+        // Don't throw - external sync failure shouldn't block the main operation
+      }
+    }
+
+    return company;
   }
 
   async reinstateCompany(id: string): Promise<Company> {
@@ -198,6 +218,26 @@ export class SupabaseCompanyService implements CompanyService {
       throw new Error(`Failed to reinstate company: ${error.message}`);
     }
 
-    return mapSupabaseToCompany(data);
+    const company = mapSupabaseToCompany(data);
+
+    // Sync with external Bubble.io API
+    if (company.bubbleCompanyId) {
+      try {
+        console.log('Syncing company reinstatement with external API...');
+        await supabase.functions.invoke('sync-company-status', {
+          body: {
+            companyUid: company.companyUid,
+            bubbleCompanyId: company.bubbleCompanyId,
+            status: 'active'
+          }
+        });
+        console.log('External sync successful for reinstated company');
+      } catch (syncError) {
+        console.warn('External sync failed for reinstated company:', syncError);
+        // Don't throw - external sync failure shouldn't block the main operation
+      }
+    }
+
+    return company;
   }
 }

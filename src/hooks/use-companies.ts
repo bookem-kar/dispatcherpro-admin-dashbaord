@@ -91,7 +91,7 @@ export function useSuspendCompany() {
       
       toast({
         title: 'Company Suspended',
-        description: `${company.name} has been suspended.`,
+        description: `${company.name} has been suspended and synced with external systems.`,
       });
     },
     onError: (error) => {
@@ -131,7 +131,7 @@ export function useReinstateCompany() {
       
       toast({
         title: 'Company Reinstated',
-        description: `${company.name} has been reinstated.`,
+        description: `${company.name} has been reinstated and synced with external systems.`,
       });
     },
     onError: (error) => {

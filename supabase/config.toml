@@ -2,3 +2,6 @@ project_id = "mbngbrdmzvpsnpcnesjv"
 
 [functions.call-company-webhook]
 verify_jwt = false
+
+[functions.sync-company-status]
+verify_jwt = false

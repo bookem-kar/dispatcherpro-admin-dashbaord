@@ -28,6 +28,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useUpdateCompany } from '@/hooks/use-companies';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import type { Company, PlanTier, CompanyStatus } from '@/types/domain';
 
 const editCompanySchema = z.object({
@@ -100,6 +101,20 @@ export function EditCompanyModal({ company, open, onOpenChange }: EditCompanyMod
         id: company.id,
         data: updateData,
       });
+
+      // Sync with external system after successful update
+      try {
+        await supabase.functions.invoke('sync-company-update', {
+          body: {
+            companyId: company.id,
+            updateData: data
+          }
+        });
+        console.log('Company update synced with external system');
+      } catch (syncError) {
+        console.warn('Failed to sync company update with external system:', syncError);
+        // Don't fail the whole operation if sync fails
+      }
 
       toast({
         title: 'Company Updated',

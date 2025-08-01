@@ -146,7 +146,7 @@ export function CompaniesTable({
                           </DropdownMenuItem> : <DropdownMenuItem onClick={() => handleSuspend(company)}>
                             Suspend Company
                           </DropdownMenuItem>}
-                        <DropdownMenuItem>Edit Plan</DropdownMenuItem>
+                        
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

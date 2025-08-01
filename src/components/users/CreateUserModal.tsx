@@ -57,7 +57,7 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
 
   // Filter companies based on search
   const filteredCompanies = companies.filter(company =>
-    company.name.toLowerCase().includes(companySearch.toLowerCase())
+    company?.name?.toLowerCase().includes(companySearch.toLowerCase())
   );
 
   const selectedCompany = companies.find(c => c.id === formData.companyId);

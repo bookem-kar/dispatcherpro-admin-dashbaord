@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UsersTable } from '@/components/users/UsersTable';
+import { CreateUserModal } from '@/components/users/CreateUserModal';
 
 export function Users() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -13,7 +14,10 @@ export function Users() {
       
       <UsersTable onCreateUser={() => setShowCreateModal(true)} />
       
-      {/* TODO: Add CreateUserModal component */}
+      <CreateUserModal 
+        open={showCreateModal} 
+        onOpenChange={setShowCreateModal} 
+      />
     </div>
   );
 }

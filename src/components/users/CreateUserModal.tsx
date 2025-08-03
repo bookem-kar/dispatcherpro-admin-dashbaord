@@ -31,6 +31,7 @@ interface CreateUserFormData {
   email: string;
   firstName: string;
   lastName: string;
+  phoneNumber: string;
   role: UserRole | '';
 }
 
@@ -47,6 +48,7 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
     email: '',
     firstName: '',
     lastName: '',
+    phoneNumber: '',
     role: '',
   });
 
@@ -111,6 +113,7 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
         email: '',
         firstName: '',
         lastName: '',
+        phoneNumber: '',
         role: '',
       });
       setCompanySearch('');
@@ -193,6 +196,17 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
               value={formData.lastName}
               onChange={(e) => handleInputChange('lastName', e.target.value)}
               placeholder="Doe"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phoneNumber">Phone Number</Label>
+            <Input
+              id="phoneNumber"
+              type="tel"
+              value={formData.phoneNumber}
+              onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+              placeholder="(555) 123-4567"
             />
           </div>
 

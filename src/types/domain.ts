@@ -115,6 +115,7 @@ export interface CreateUserInput {
   email: string;
   firstName?: string;
   lastName?: string;
+  phoneNumber?: string;
   companyId: string;
   role: UserRole;
   createdByUserId?: string;

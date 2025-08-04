@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { UserRole } from '@/types/domain';
 import { useCompanies } from '@/hooks/use-companies';
+import { useCreateUser } from '@/hooks/use-users';
 import { useToast } from '@/hooks/use-toast';
 
 interface CreateUserModalProps {
@@ -54,6 +55,7 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
 
   const [companySearch, setCompanySearch] = useState('');
   const { toast } = useToast();
+  const createUser = useCreateUser();
   
   const { data: companies = [], isLoading: loadingCompanies } = useCompanies();
 
@@ -88,13 +90,31 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
       return;
     }
 
-    // TODO: Submit form data when user approves
-    console.log('Form data ready for submission:', formData);
-    
-    toast({
-      title: 'Form Ready',
-      description: 'User form data is valid and ready for submission.',
-    });
+    try {
+      await createUser.mutateAsync({
+        companyId: formData.companyId,
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        role: formData.role as UserRole,
+      });
+
+      toast({
+        title: 'Success',
+        description: 'User created successfully.',
+      });
+
+      // Close modal and reset form
+      handleModalClose(false);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create user. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleInputChange = (field: keyof CreateUserFormData, value: string) => {

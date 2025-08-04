@@ -76,37 +76,9 @@ Deno.serve(async (req) => {
     const webhookResult = await webhookResponse.json()
     console.log('N8N webhook response:', webhookResult)
 
-    // Create user in Supabase (without phoneNumber)
-    const { data: newUser, error: userError } = await supabaseClient
-      .from('users')
-      .insert({
-        company_id: companyId,
-        email,
-        first_name: firstName,
-        last_name: lastName,
-        role,
-        status: 'active'
-      })
-      .select()
-      .single()
-
-    if (userError) {
-      console.error('User creation error:', userError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to create user in database' }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
-    }
-
-    console.log('User created successfully:', newUser)
-
     return new Response(
       JSON.stringify({ 
         success: true, 
-        user: newUser,
         webhookResponse: webhookResult 
       }),
       { 

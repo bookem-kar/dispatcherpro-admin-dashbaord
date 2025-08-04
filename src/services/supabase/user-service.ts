@@ -87,11 +87,25 @@ export class SupabaseUserService implements UserService {
       throw new Error(`Failed to create user: ${error.message}`);
     }
 
-    if (!data?.user) {
-      throw new Error('User creation failed: No user data returned');
+    if (!data?.success) {
+      throw new Error('User creation failed: Webhook call unsuccessful');
     }
 
-    return data.user;
+    // Return a mock user object since we're only triggering webhooks
+    return {
+      id: crypto.randomUUID(),
+      email: input.email,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      companyId: input.companyId,
+      role: input.role,
+      isActive: true,
+      isSuspended: false,
+      createdAt: new Date().toISOString(),
+      lastLoginAt: null,
+      lastActivityAt: null,
+      createdByUserId: null,
+    };
   }
 
   async updateUser(id: string, patch: Partial<PlatformUser>): Promise<PlatformUser> {

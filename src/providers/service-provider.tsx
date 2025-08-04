@@ -14,7 +14,7 @@ import {
   MockEmailService, 
   MockMetricsService 
 } from '@/services/mock';
-import { SupabaseCompanyService } from '@/services/supabase';
+import { SupabaseCompanyService, SupabaseUserService } from '@/services/supabase';
 
 interface ServiceContextValue {
   companyService: CompanyService;
@@ -41,7 +41,7 @@ export function ServiceProvider({ children, mode = 'mock' }: ServiceProviderProp
       default:
         return {
           companyService: new SupabaseCompanyService(),
-          userService: new MockUserService(),
+          userService: new SupabaseUserService(),
           activityService: new MockActivityService(),
           emailService: new MockEmailService(),
           metricsService: new MockMetricsService()

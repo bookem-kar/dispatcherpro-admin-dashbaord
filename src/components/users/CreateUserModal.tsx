@@ -117,9 +117,25 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
     }
   };
 
+  const formatPhoneNumber = (value: string): string => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    
+    // Limit to 10 digits
+    const limitedDigits = digits.slice(0, 10);
+    
+    // Format as (XXX) XXX-XXXX
+    if (limitedDigits.length === 0) return '';
+    if (limitedDigits.length <= 3) return `(${limitedDigits}`;
+    if (limitedDigits.length <= 6) return `(${limitedDigits.slice(0, 3)}) ${limitedDigits.slice(3)}`;
+    return `(${limitedDigits.slice(0, 3)}) ${limitedDigits.slice(3, 6)}-${limitedDigits.slice(6)}`;
+  };
+
   const handleInputChange = (field: keyof CreateUserFormData, value: string) => {
     if (field === 'email') {
       setFormData(prev => ({ ...prev, [field]: value.toLowerCase().trim() }));
+    } else if (field === 'phoneNumber') {
+      setFormData(prev => ({ ...prev, [field]: formatPhoneNumber(value) }));
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
@@ -227,6 +243,7 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
               value={formData.phoneNumber}
               onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
               placeholder="(555) 123-4567"
+              maxLength={14}
             />
           </div>
 
@@ -257,8 +274,8 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
             >
               Cancel
             </Button>
-            <Button type="submit">
-              Create User
+            <Button type="submit" disabled={createUser.isPending}>
+              {createUser.isPending ? "Creating..." : "Create User"}
             </Button>
           </DialogFooter>
         </form>

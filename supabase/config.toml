@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.sync-company-update]
 verify_jwt = false
+
+[functions.sync-user-status]
+verify_jwt = false

@@ -137,6 +137,17 @@ export class SupabaseUserService implements UserService {
     if (error) {
       throw new Error(`Failed to suspend user: ${error.message}`);
     }
+
+    // Sync with external Bubble.io API
+    try {
+      await supabase.functions.invoke('sync-user-status', {
+        body: { userId: id, activeStatus: 'inactive' }
+      });
+      console.log('User status synced with external API successfully');
+    } catch (syncError) {
+      console.error('Failed to sync user status with external API:', syncError);
+      // Don't fail the operation if external sync fails
+    }
     
     return transformSupabaseUser(data);
   }
@@ -155,6 +166,17 @@ export class SupabaseUserService implements UserService {
     
     if (error) {
       throw new Error(`Failed to reinstate user: ${error.message}`);
+    }
+
+    // Sync with external Bubble.io API
+    try {
+      await supabase.functions.invoke('sync-user-status', {
+        body: { userId: id, activeStatus: 'active' }
+      });
+      console.log('User status synced with external API successfully');
+    } catch (syncError) {
+      console.error('Failed to sync user status with external API:', syncError);
+      // Don't fail the operation if external sync fails
     }
     
     return transformSupabaseUser(data);

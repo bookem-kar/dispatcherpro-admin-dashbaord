@@ -27,7 +27,7 @@ export interface CompanyService {
 export interface UserService {
   listUsers(filter?: UserFilter): Promise<PlatformUser[]>;
   getUser(id: string): Promise<PlatformUser | null>;
-  createUser(input: CreateUserInput): Promise<PlatformUser>;
+  createUser(input: CreateUserInput): Promise<{ success: boolean; message?: string }>;
   updateUser(id: string, patch: Partial<PlatformUser>): Promise<PlatformUser>;
   suspendUser(id: string, reason?: string): Promise<PlatformUser>;
   reinstateUser(id: string): Promise<PlatformUser>;

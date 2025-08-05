@@ -28,7 +28,7 @@ export function useCreateUser() {
   return useMutation({
     mutationFn: (input: CreateUserInput) => userService.createUser(input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      // Only invalidate companies since we're not managing users locally in Supabase mode
       queryClient.invalidateQueries({ queryKey: ['companies'] });
     },
   });

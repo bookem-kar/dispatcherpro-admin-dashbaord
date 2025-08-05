@@ -91,7 +91,7 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
     }
 
     try {
-      await createUser.mutateAsync({
+      const result = await createUser.mutateAsync({
         companyId: formData.companyId,
         email: formData.email,
         firstName: formData.firstName,
@@ -102,16 +102,16 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
 
       toast({
         title: 'Success',
-        description: 'User created successfully.',
+        description: result.message || 'User creation webhook triggered successfully.',
       });
 
       // Close modal and reset form
       handleModalClose(false);
     } catch (error) {
-      console.error('Error creating user:', error);
+      console.error('Error triggering user creation:', error);
       toast({
         title: 'Error',
-        description: 'Failed to create user. Please try again.',
+        description: 'Failed to trigger user creation. Please try again.',
         variant: 'destructive',
       });
     }

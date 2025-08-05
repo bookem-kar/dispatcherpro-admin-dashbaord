@@ -58,7 +58,8 @@ export class MockUserService implements UserService {
     return user || null;
   }
 
-  async createUser(input: CreateUserInput): Promise<PlatformUser> {
+  async createUser(input: CreateUserInput): Promise<{ success: boolean; message?: string }> {
+    // In mock mode, we simulate the webhook trigger but still create a user for testing
     const newUser: PlatformUser = {
       id: `user-${Date.now()}`,
       email: input.email,
@@ -88,7 +89,10 @@ export class MockUserService implements UserService {
       }
     });
 
-    return newUser;
+    return {
+      success: true,
+      message: 'User creation webhook triggered successfully (simulated in mock)'
+    };
   }
 
   async updateUser(id: string, patch: Partial<PlatformUser>): Promise<PlatformUser> {

@@ -70,41 +70,25 @@ export class SupabaseUserService implements UserService {
     return transformSupabaseUser(data);
   }
 
-  async createUser(input: CreateUserInput): Promise<PlatformUser> {
-    // Call the create-user-webhook edge function
+  async createUser(input: CreateUserInput): Promise<{ success: boolean; message?: string }> {
+    console.log('Triggering user creation webhook:', input);
+    
     const { data, error } = await supabase.functions.invoke('create-user-webhook', {
-      body: {
-        companyId: input.companyId,
-        email: input.email,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        phoneNumber: input.phoneNumber,
-        role: input.role,
-      },
+      body: input
     });
 
     if (error) {
-      throw new Error(`Failed to create user: ${error.message}`);
+      console.error('Error triggering user creation webhook:', error);
+      throw new Error(`Failed to trigger user creation: ${error.message}`);
     }
 
     if (!data?.success) {
-      throw new Error('User creation failed: Webhook call unsuccessful');
+      throw new Error('User creation webhook failed');
     }
 
-    // Return a mock user object since we're only triggering webhooks
     return {
-      id: crypto.randomUUID(),
-      email: input.email,
-      firstName: input.firstName,
-      lastName: input.lastName,
-      companyId: input.companyId,
-      role: input.role,
-      isActive: true,
-      isSuspended: false,
-      createdAt: new Date().toISOString(),
-      lastLoginAt: null,
-      lastActivityAt: null,
-      createdByUserId: null,
+      success: true,
+      message: 'User creation webhook triggered successfully'
     };
   }
 

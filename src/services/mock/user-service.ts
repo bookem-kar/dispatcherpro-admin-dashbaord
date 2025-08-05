@@ -14,7 +14,7 @@ export class MockUserService implements UserService {
   private users: PlatformUser[] = [...mockUsers];
   private activityService = new MockActivityService();
 
-  async listUsers(filter?: UserFilter): Promise<PlatformUser[]> {
+  async listUsers(filter?: UserFilter): Promise<{ users: PlatformUser[]; total: number }> {
     let result = [...this.users];
 
     // Apply filters
@@ -44,13 +44,44 @@ export class MockUserService implements UserService {
       );
     }
 
+    // Sort by newest first (created_at desc by default)
+    const sortBy = filter?.sortBy || 'created_at';
+    const sortOrder = filter?.sortOrder || 'desc';
+    result.sort((a, b) => {
+      let aValue: string | undefined;
+      let bValue: string | undefined;
+      
+      if (sortBy === 'created_at') {
+        aValue = a.createdAt;
+        bValue = b.createdAt;
+      } else if (sortBy === 'last_login_at') {
+        aValue = a.lastLoginAt || '1970-01-01T00:00:00.000Z';
+        bValue = b.lastLoginAt || '1970-01-01T00:00:00.000Z';
+      }
+      
+      const aTime = new Date(aValue || '1970-01-01T00:00:00.000Z').getTime();
+      const bTime = new Date(bValue || '1970-01-01T00:00:00.000Z').getTime();
+      
+      if (sortOrder === 'desc') {
+        return bTime - aTime;
+      } else {
+        return aTime - bTime;
+      }
+    });
+
+    const total = result.length;
+
     // Apply pagination
     const page = filter?.page || 1;
-    const limit = filter?.limit || 50;
+    const limit = filter?.limit || 10;
     const start = (page - 1) * limit;
     const end = start + limit;
+    result = result.slice(start, end);
     
-    return result.slice(start, end);
+    return {
+      users: result,
+      total
+    };
   }
 
   async getUser(id: string): Promise<PlatformUser | null> {
@@ -213,7 +244,8 @@ export class MockUserService implements UserService {
     return [...this.users];
   }
 
-  getUsersByCompany(companyId: string): Promise<PlatformUser[]> {
-    return this.listUsers({ companyId });
+  async getUsersByCompany(companyId: string): Promise<PlatformUser[]> {
+    const result = await this.listUsers({ companyId });
+    return result.users;
   }
 }

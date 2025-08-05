@@ -21,8 +21,8 @@ function transformSupabaseUser(user: any): PlatformUser {
 }
 
 export class SupabaseUserService implements UserService {
-  async listUsers(filter?: UserFilter): Promise<PlatformUser[]> {
-    let query = supabase.from('platform_users').select('*');
+  async listUsers(filter?: UserFilter): Promise<{ users: PlatformUser[]; total: number }> {
+    let query = supabase.from('platform_users').select('*', { count: 'exact' });
     
     if (filter?.companyId) {
       query = query.eq('company_id', filter.companyId);
@@ -43,14 +43,29 @@ export class SupabaseUserService implements UserService {
     if (filter?.search) {
       query = query.or(`email.ilike.%${filter.search}%,first_name.ilike.%${filter.search}%,last_name.ilike.%${filter.search}%`);
     }
+
+    // Add sorting - default to newest first
+    const sortBy = filter?.sortBy || 'created_at';
+    const sortOrder = filter?.sortOrder || 'desc';
+    query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+
+    // Add pagination
+    const page = filter?.page || 1;
+    const limit = filter?.limit || 10;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    query = query.range(from, to);
     
-    const { data, error } = await query;
+    const { data, error, count } = await query;
     
     if (error) {
       throw new Error(`Failed to fetch users: ${error.message}`);
     }
     
-    return (data || []).map(transformSupabaseUser);
+    return {
+      users: (data || []).map(transformSupabaseUser),
+      total: count || 0
+    };
   }
 
   async getUser(id: string): Promise<PlatformUser | null> {

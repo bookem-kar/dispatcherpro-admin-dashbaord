@@ -25,13 +25,13 @@ export class MockMetricsService implements MetricsService {
   }
 
   async getTotalUsers(): Promise<number> {
-    const users = await this.userService.listUsers();
-    return users.length;
+    const result = await this.userService.listUsers();
+    return result.total;
   }
 
   async getActiveUsers(): Promise<number> {
-    const users = await this.userService.listUsers({ isActive: true, isSuspended: false });
-    return users.length;
+    const result = await this.userService.listUsers({ isActive: true, isSuspended: false });
+    return result.total;
   }
 
   async getRecentActivityCount(hours: number = 24): Promise<number> {

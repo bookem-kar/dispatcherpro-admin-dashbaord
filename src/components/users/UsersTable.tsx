@@ -18,6 +18,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { useUsers, useDeleteUser, useSuspendUser, useReinstateUser } from '@/hooks/use-users';
 import { useCompanies } from '@/hooks/use-companies';
 import { Search, MoreHorizontal, Plus, UserX, UserCheck, Trash2 } from 'lucide-react';
@@ -29,7 +38,21 @@ interface UsersTableProps {
 
 export function UsersTable({ onCreateUser }: UsersTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data: users = [], isLoading, error } = useUsers();
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+  
+  const { data: usersData, isLoading, error } = useUsers({
+    search: searchTerm || undefined,
+    page: currentPage,
+    limit: usersPerPage,
+    sortBy: 'created_at',
+    sortOrder: 'desc'
+  });
+  
+  const users = usersData?.users || [];
+  const totalUsers = usersData?.total || 0;
+  const totalPages = Math.ceil(totalUsers / usersPerPage);
+  
   const { data: companies = [] } = useCompanies();
   const deleteUser = useDeleteUser();
   const suspendUser = useSuspendUser();
@@ -46,17 +69,10 @@ export function UsersTable({ onCreateUser }: UsersTableProps) {
     return 'active';
   };
 
-  const filteredUsers = users.filter(user => {
-    const company = getUserCompany(user.companyId);
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      (user.firstName?.toLowerCase().includes(searchLower) || false) ||
-      (user.lastName?.toLowerCase().includes(searchLower) || false) ||
-      user.email.toLowerCase().includes(searchLower) ||
-      (company?.name.toLowerCase().includes(searchLower) || false) ||
-      user.role.toLowerCase().includes(searchLower)
-    );
-  });
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
 
   const handleSuspend = async (userId: string, userName: string) => {
     try {
@@ -148,7 +164,7 @@ export function UsersTable({ onCreateUser }: UsersTableProps) {
           <Input
             placeholder="Search users..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             className="pl-10"
           />
         </div>
@@ -173,14 +189,14 @@ export function UsersTable({ onCreateUser }: UsersTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.length === 0 ? (
+            {users.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   {searchTerm ? 'No users found matching your search.' : 'No users found.'}
                 </TableCell>
               </TableRow>
             ) : (
-              filteredUsers.map((user) => {
+              users.map((user) => {
                 const company = getUserCompany(user.companyId);
                 const status = getStatusText(user);
                 return (
@@ -243,6 +259,51 @@ export function UsersTable({ onCreateUser }: UsersTableProps) {
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+            
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNumber;
+              if (totalPages <= 5) {
+                pageNumber = i + 1;
+              } else if (currentPage <= 3) {
+                pageNumber = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNumber = totalPages - 4 + i;
+              } else {
+                pageNumber = currentPage - 2 + i;
+              }
+              
+              return (
+                <PaginationItem key={pageNumber}>
+                  <PaginationLink 
+                    onClick={() => setCurrentPage(pageNumber)}
+                    isActive={currentPage === pageNumber}
+                    className="cursor-pointer"
+                  >
+                    {pageNumber}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+            
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }

@@ -81,6 +81,8 @@ export interface UserFilter {
   search?: string;
   page?: number;
   limit?: number;
+  sortBy?: 'created_at' | 'updated_at' | 'last_login_at';
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface ActivityFilter {

@@ -37,7 +37,8 @@ serve(async (req) => {
       .from('platform_users')
       .select(`
         email,
-        companies!inner(company_uid)
+        company_id,
+        companies!platform_users_company_id_fkey(company_uid)
       `)
       .eq('id', userId)
       .single()
@@ -69,7 +70,7 @@ serve(async (req) => {
 
     // Prepare payload for external API
     const payload = {
-      company_uuid: userData.companies.company_uid,
+      company_uuid: userData.companies?.company_uid,
       email: userData.email,
       active_status: activeStatus
     }

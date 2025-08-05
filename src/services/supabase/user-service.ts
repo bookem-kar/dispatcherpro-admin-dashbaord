@@ -123,89 +123,155 @@ export class SupabaseUserService implements UserService {
   }
 
   async suspendUser(id: string, reason?: string): Promise<PlatformUser> {
-    const { data, error } = await supabase
-      .from('platform_users')
-      .update({ 
-        is_suspended: true, 
-        suspended_at: new Date().toISOString(),
-        suspension_reason: reason 
-      })
-      .eq('id', id)
-      .select()
-      .single();
+    console.log('Starting suspendUser process for ID:', id, 'with reason:', reason);
     
-    if (error) {
-      throw new Error(`Failed to suspend user: ${error.message}`);
-    }
-
-    // Get user's company_uid for external API sync
-    const { data: companyData } = await supabase
-      .from('companies')
-      .select('company_uid')
-      .eq('id', data.company_id)
-      .single();
-
-    // Sync with external Bubble.io API
     try {
-      if (companyData?.company_uid) {
-        await supabase.functions.invoke('sync-user-status', {
-          body: { 
+      console.log('Attempting to update platform_users table...');
+      const { data, error } = await supabase
+        .from('platform_users')
+        .update({ 
+          is_suspended: true, 
+          suspended_at: new Date().toISOString(),
+          suspension_reason: reason 
+        })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Database update error:', error);
+        throw new Error(`Failed to suspend user: ${error.message}`);
+      }
+      
+      console.log('Database update successful. User data:', data);
+      console.log('User company_id:', data.company_id);
+
+      // Get user's company_uid for external API sync
+      console.log('Fetching company data...');
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .select('company_uid')
+        .eq('id', data.company_id)
+        .single();
+
+      if (companyError) {
+        console.error('Company fetch error:', companyError);
+      } else {
+        console.log('Company data fetched:', companyData);
+      }
+
+      // Sync with external Bubble.io API
+      try {
+        if (companyData?.company_uid) {
+          console.log('Calling sync-user-status edge function with:', {
             company_uid: companyData.company_uid,
             email: data.email,
             active_status: 'inactive'
+          });
+          
+          const { data: syncData, error: syncError } = await supabase.functions.invoke('sync-user-status', {
+            body: { 
+              company_uid: companyData.company_uid,
+              email: data.email,
+              active_status: 'inactive'
+            }
+          });
+          
+          if (syncError) {
+            console.error('Edge function invocation error:', syncError);
+          } else {
+            console.log('Edge function response:', syncData);
+            console.log('User status synced with external API successfully');
           }
-        });
-        console.log('User status synced with external API successfully');
+        } else {
+          console.warn('No company_uid found, skipping external sync');
+        }
+      } catch (syncError) {
+        console.error('Failed to sync user status with external API:', syncError);
+        // Don't fail the operation if external sync fails
       }
-    } catch (syncError) {
-      console.error('Failed to sync user status with external API:', syncError);
-      // Don't fail the operation if external sync fails
+      
+      return transformSupabaseUser(data);
+    } catch (mainError) {
+      console.error('Main suspendUser error:', mainError);
+      throw mainError;
     }
-    
-    return transformSupabaseUser(data);
   }
 
   async reinstateUser(id: string): Promise<PlatformUser> {
-    const { data, error } = await supabase
-      .from('platform_users')
-      .update({ 
-        is_suspended: false, 
-        suspended_at: null,
-        suspension_reason: null 
-      })
-      .eq('id', id)
-      .select()
-      .single();
+    console.log('Starting reinstateUser process for ID:', id);
     
-    if (error) {
-      throw new Error(`Failed to reinstate user: ${error.message}`);
-    }
-
-    // Get user's company_uid for external API sync
-    const { data: companyData } = await supabase
-      .from('companies')
-      .select('company_uid')
-      .eq('id', data.company_id)
-      .single();
-
-    // Sync with external Bubble.io API
     try {
-      if (companyData?.company_uid) {
-        await supabase.functions.invoke('sync-user-status', {
-          body: { 
+      console.log('Attempting to update platform_users table...');
+      const { data, error } = await supabase
+        .from('platform_users')
+        .update({ 
+          is_suspended: false, 
+          suspended_at: null,
+          suspension_reason: null 
+        })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Database update error:', error);
+        throw new Error(`Failed to reinstate user: ${error.message}`);
+      }
+      
+      console.log('Database update successful. User data:', data);
+      console.log('User company_id:', data.company_id);
+
+      // Get user's company_uid for external API sync
+      console.log('Fetching company data...');
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .select('company_uid')
+        .eq('id', data.company_id)
+        .single();
+
+      if (companyError) {
+        console.error('Company fetch error:', companyError);
+      } else {
+        console.log('Company data fetched:', companyData);
+      }
+
+      // Sync with external Bubble.io API
+      try {
+        if (companyData?.company_uid) {
+          console.log('Calling sync-user-status edge function with:', {
             company_uid: companyData.company_uid,
             email: data.email,
             active_status: 'active'
+          });
+          
+          const { data: syncData, error: syncError } = await supabase.functions.invoke('sync-user-status', {
+            body: { 
+              company_uid: companyData.company_uid,
+              email: data.email,
+              active_status: 'active'
+            }
+          });
+          
+          if (syncError) {
+            console.error('Edge function invocation error:', syncError);
+          } else {
+            console.log('Edge function response:', syncData);
+            console.log('User status synced with external API successfully');
           }
-        });
-        console.log('User status synced with external API successfully');
+        } else {
+          console.warn('No company_uid found, skipping external sync');
+        }
+      } catch (syncError) {
+        console.error('Failed to sync user status with external API:', syncError);
+        // Don't fail the operation if external sync fails
       }
-    } catch (syncError) {
-      console.error('Failed to sync user status with external API:', syncError);
-      // Don't fail the operation if external sync fails
+      
+      return transformSupabaseUser(data);
+    } catch (mainError) {
+      console.error('Main reinstateUser error:', mainError);
+      throw mainError;
     }
-    
-    return transformSupabaseUser(data);
   }
 
   async deleteUser(id: string): Promise<void> {

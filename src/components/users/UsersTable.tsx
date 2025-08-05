@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import {
   Table,
   TableBody,
@@ -41,8 +42,11 @@ export function UsersTable({ onCreateUser }: UsersTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
   
+  // Debounce search term to avoid excessive API calls
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
+  
   const { data: usersData, isLoading, error } = useUsers({
-    search: searchTerm || undefined,
+    search: debouncedSearchTerm || undefined,
     page: currentPage,
     limit: usersPerPage,
     sortBy: 'created_at',
@@ -71,7 +75,10 @@ export function UsersTable({ onCreateUser }: UsersTableProps) {
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
-    setCurrentPage(1); // Reset to first page when searching
+    // Reset to first page when search term changes (not just on input change)
+    if (value !== searchTerm) {
+      setCurrentPage(1);
+    }
   };
 
   const handleSuspend = async (userId: string, userName: string) => {
@@ -192,7 +199,7 @@ export function UsersTable({ onCreateUser }: UsersTableProps) {
             {users.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                  {searchTerm ? 'No users found matching your search.' : 'No users found.'}
+                  {debouncedSearchTerm ? 'No users found matching your search.' : 'No users found.'}
                 </TableCell>
               </TableRow>
             ) : (

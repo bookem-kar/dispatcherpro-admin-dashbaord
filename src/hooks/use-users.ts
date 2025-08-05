@@ -8,6 +8,8 @@ export function useUsers(filter?: UserFilter) {
   return useQuery({
     queryKey: ['users', filter],
     queryFn: () => userService.listUsers(filter),
+    staleTime: 30000, // Keep data fresh for 30 seconds
+    gcTime: 300000, // Keep in cache for 5 minutes
   });
 }
 

@@ -31,22 +31,42 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Get user and company data
-    console.log('Fetching user and company data...')
+    // Get user data first
+    console.log('Fetching user data...')
     const { data: userData, error: userError } = await supabase
       .from('platform_users')
-      .select(`
-        email,
-        company_id,
-        companies!platform_users_company_id_fkey(company_uid)
-      `)
+      .select('email, company_id')
       .eq('id', userId)
       .single()
 
     if (userError || !userData) {
       console.error('Failed to fetch user data:', userError)
       return new Response(
-        JSON.stringify({ error: 'User not found or missing company data' }),
+        JSON.stringify({ error: 'User not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!userData.company_id) {
+      console.error('User has no company assigned:', userId)
+      return new Response(
+        JSON.stringify({ error: 'User has no company assigned' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Get company data separately
+    console.log('Fetching company data for company_id:', userData.company_id)
+    const { data: companyData, error: companyError } = await supabase
+      .from('companies')
+      .select('company_uid')
+      .eq('id', userData.company_id)
+      .single()
+
+    if (companyError || !companyData) {
+      console.error('Failed to fetch company data:', companyError)
+      return new Response(
+        JSON.stringify({ error: 'Company not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -70,7 +90,7 @@ serve(async (req) => {
 
     // Prepare payload for external API
     const payload = {
-      company_uuid: userData.companies?.company_uid,
+      company_uuid: companyData.company_uid,
       email: userData.email,
       active_status: activeStatus
     }

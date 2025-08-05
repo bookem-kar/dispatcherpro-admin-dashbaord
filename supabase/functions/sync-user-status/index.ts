@@ -15,12 +15,12 @@ serve(async (req) => {
   try {
     console.log('Sync user status function called')
     
-    const { userId, activeStatus } = await req.json()
+    const { company_uid, email, active_status } = await req.json()
     
-    if (!userId || !activeStatus) {
-      console.error('Missing required fields:', { userId, activeStatus })
+    if (!company_uid || !email || !active_status) {
+      console.error('Missing required fields:', { company_uid, email, active_status })
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: userId, activeStatus' }),
+        JSON.stringify({ error: 'Missing required fields: company_uid, email, active_status' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -30,46 +30,6 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
-
-    // Get user data first
-    console.log('Fetching user data...')
-    const { data: userData, error: userError } = await supabase
-      .from('platform_users')
-      .select('email, company_id')
-      .eq('id', userId)
-      .single()
-
-    if (userError || !userData) {
-      console.error('Failed to fetch user data:', userError)
-      return new Response(
-        JSON.stringify({ error: 'User not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    if (!userData.company_id) {
-      console.error('User has no company assigned:', userId)
-      return new Response(
-        JSON.stringify({ error: 'User has no company assigned' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Get company data separately
-    console.log('Fetching company data for company_id:', userData.company_id)
-    const { data: companyData, error: companyError } = await supabase
-      .from('companies')
-      .select('company_uid')
-      .eq('id', userData.company_id)
-      .single()
-
-    if (companyError || !companyData) {
-      console.error('Failed to fetch company data:', companyError)
-      return new Response(
-        JSON.stringify({ error: 'Company not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
 
     // Get active Bubble.io API credentials
     console.log('Fetching Bubble.io API credentials...')
@@ -90,9 +50,9 @@ serve(async (req) => {
 
     // Prepare payload for external API
     const payload = {
-      company_uuid: companyData.company_uid,
-      email: userData.email,
-      active_status: activeStatus
+      company_uuid: company_uid,
+      email: email,
+      active_status: active_status
     }
 
     console.log('Sending payload to Bubble.io:', payload)

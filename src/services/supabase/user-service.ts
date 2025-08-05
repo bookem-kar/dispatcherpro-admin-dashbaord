@@ -138,12 +138,25 @@ export class SupabaseUserService implements UserService {
       throw new Error(`Failed to suspend user: ${error.message}`);
     }
 
+    // Get user's company_uid for external API sync
+    const { data: companyData } = await supabase
+      .from('companies')
+      .select('company_uid')
+      .eq('id', data.company_id)
+      .single();
+
     // Sync with external Bubble.io API
     try {
-      await supabase.functions.invoke('sync-user-status', {
-        body: { userId: id, activeStatus: 'inactive' }
-      });
-      console.log('User status synced with external API successfully');
+      if (companyData?.company_uid) {
+        await supabase.functions.invoke('sync-user-status', {
+          body: { 
+            company_uid: companyData.company_uid,
+            email: data.email,
+            active_status: 'inactive'
+          }
+        });
+        console.log('User status synced with external API successfully');
+      }
     } catch (syncError) {
       console.error('Failed to sync user status with external API:', syncError);
       // Don't fail the operation if external sync fails
@@ -168,12 +181,25 @@ export class SupabaseUserService implements UserService {
       throw new Error(`Failed to reinstate user: ${error.message}`);
     }
 
+    // Get user's company_uid for external API sync
+    const { data: companyData } = await supabase
+      .from('companies')
+      .select('company_uid')
+      .eq('id', data.company_id)
+      .single();
+
     // Sync with external Bubble.io API
     try {
-      await supabase.functions.invoke('sync-user-status', {
-        body: { userId: id, activeStatus: 'active' }
-      });
-      console.log('User status synced with external API successfully');
+      if (companyData?.company_uid) {
+        await supabase.functions.invoke('sync-user-status', {
+          body: { 
+            company_uid: companyData.company_uid,
+            email: data.email,
+            active_status: 'active'
+          }
+        });
+        console.log('User status synced with external API successfully');
+      }
     } catch (syncError) {
       console.error('Failed to sync user status with external API:', syncError);
       // Don't fail the operation if external sync fails

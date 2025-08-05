@@ -115,7 +115,6 @@ export type Database = {
           admin_user_id: string | null
           bubble_company_id: string | null
           central_dispatch_acct: string | null
-          company_string_uuid: string | null
           company_uid: string
           created_at: string
           email: string
@@ -145,7 +144,6 @@ export type Database = {
           admin_user_id?: string | null
           bubble_company_id?: string | null
           central_dispatch_acct?: string | null
-          company_string_uuid?: string | null
           company_uid: string
           created_at?: string
           email: string
@@ -175,7 +173,6 @@ export type Database = {
           admin_user_id?: string | null
           bubble_company_id?: string | null
           central_dispatch_acct?: string | null
-          company_string_uuid?: string | null
           company_uid?: string
           created_at?: string
           email?: string
@@ -203,8 +200,10 @@ export type Database = {
           created_at: string
           created_by_user_id: string | null
           email: string
+          external_user_uid: string | null
           first_name: string | null
           id: string
+          invite_token: string | null
           is_active: boolean
           is_suspended: boolean
           last_activity_at: string | null
@@ -218,8 +217,10 @@ export type Database = {
           created_at?: string
           created_by_user_id?: string | null
           email: string
+          external_user_uid?: string | null
           first_name?: string | null
           id?: string
+          invite_token?: string | null
           is_active?: boolean
           is_suspended?: boolean
           last_activity_at?: string | null
@@ -233,8 +234,10 @@ export type Database = {
           created_at?: string
           created_by_user_id?: string | null
           email?: string
+          external_user_uid?: string | null
           first_name?: string | null
           id?: string
+          invite_token?: string | null
           is_active?: boolean
           is_suspended?: boolean
           last_activity_at?: string | null

@@ -123,21 +123,6 @@ export class SupabaseUserService implements UserService {
   }
 
   async suspendUser(id: string, reason?: string): Promise<PlatformUser> {
-    const { data, error } = await supabase
-      .from('platform_users')
-      .update({ 
-        is_suspended: true, 
-        suspended_at: new Date().toISOString(),
-        suspension_reason: reason 
-      })
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) {
-      throw new Error(`Failed to suspend user: ${error.message}`);
-    }
-
     // Trigger N8N workflow for user status update
     try {
       await supabase.functions.invoke('update-user-status', {
@@ -145,28 +130,24 @@ export class SupabaseUserService implements UserService {
       });
     } catch (webhookError) {
       console.error('Failed to trigger user suspend workflow:', webhookError);
-      // Don't throw error - user suspension succeeded, webhook is secondary
+      throw new Error(`Failed to trigger user suspend workflow: ${webhookError.message}`);
+    }
+
+    // Fetch current user data after N8N processes the request
+    const { data, error } = await supabase
+      .from('platform_users')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      throw new Error(`Failed to fetch user after suspend: ${error.message}`);
     }
     
     return transformSupabaseUser(data);
   }
 
   async reinstateUser(id: string): Promise<PlatformUser> {
-    const { data, error } = await supabase
-      .from('platform_users')
-      .update({ 
-        is_suspended: false, 
-        suspended_at: null,
-        suspension_reason: null 
-      })
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) {
-      throw new Error(`Failed to reinstate user: ${error.message}`);
-    }
-
     // Trigger N8N workflow for user status update
     try {
       await supabase.functions.invoke('update-user-status', {
@@ -174,7 +155,18 @@ export class SupabaseUserService implements UserService {
       });
     } catch (webhookError) {
       console.error('Failed to trigger user reinstate workflow:', webhookError);
-      // Don't throw error - user reinstatement succeeded, webhook is secondary
+      throw new Error(`Failed to trigger user reinstate workflow: ${webhookError.message}`);
+    }
+
+    // Fetch current user data after N8N processes the request
+    const { data, error } = await supabase
+      .from('platform_users')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      throw new Error(`Failed to fetch user after reinstate: ${error.message}`);
     }
     
     return transformSupabaseUser(data);

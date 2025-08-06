@@ -137,6 +137,16 @@ export class SupabaseUserService implements UserService {
     if (error) {
       throw new Error(`Failed to suspend user: ${error.message}`);
     }
+
+    // Trigger N8N workflow for user status update
+    try {
+      await supabase.functions.invoke('update-user-status', {
+        body: { userId: id, action: 'suspend' }
+      });
+    } catch (webhookError) {
+      console.error('Failed to trigger user suspend workflow:', webhookError);
+      // Don't throw error - user suspension succeeded, webhook is secondary
+    }
     
     return transformSupabaseUser(data);
   }
@@ -155,6 +165,16 @@ export class SupabaseUserService implements UserService {
     
     if (error) {
       throw new Error(`Failed to reinstate user: ${error.message}`);
+    }
+
+    // Trigger N8N workflow for user status update
+    try {
+      await supabase.functions.invoke('update-user-status', {
+        body: { userId: id, action: 'reinstate' }
+      });
+    } catch (webhookError) {
+      console.error('Failed to trigger user reinstate workflow:', webhookError);
+      // Don't throw error - user reinstatement succeeded, webhook is secondary
     }
     
     return transformSupabaseUser(data);

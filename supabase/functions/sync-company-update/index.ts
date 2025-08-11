@@ -17,6 +17,18 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Get the webhook URL from secrets
+    const webhookUrl = Deno.env.get('EDIT_COMPANY_WEBHOOK_URL');
+    console.log('Retrieved webhook URL from env:', webhookUrl ? 'URL found' : 'URL not found');
+    
+    if (!webhookUrl) {
+      console.error('EDIT_COMPANY_WEBHOOK_URL environment variable is not set');
+      return new Response(
+        JSON.stringify({ error: 'Webhook URL not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const { companyId, updateData }: SyncCompanyUpdateRequest = await req.json();
 
     if (!companyId || !updateData) {
@@ -81,7 +93,7 @@ Deno.serve(async (req) => {
     });
 
     // Send to N8N webhook
-    const webhookResponse = await fetch('https://dispatcherpro.app.n8n.cloud/webhook/edit-company', {
+    const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

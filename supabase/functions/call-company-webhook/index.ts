@@ -12,9 +12,13 @@ serve(async (req) => {
   }
 
   try {
-    // Get the webhook URL from secrets
+    // Get the webhook URL from secrets - force redeployment and add debugging
     const webhookUrl = Deno.env.get('COMPANY_WEBHOOK_URL');
+    console.log('Retrieved webhook URL from env:', webhookUrl ? 'URL found' : 'URL not found');
+    console.log('All environment variables:', Object.keys(Deno.env.toObject()));
+    
     if (!webhookUrl) {
+      console.error('COMPANY_WEBHOOK_URL environment variable is not set');
       throw new Error('Webhook URL not configured');
     }
 

@@ -12,6 +12,19 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Get the webhook URL from secrets
+    const webhookUrl = Deno.env.get('USER_STATUS_WEBHOOK_URL');
+    console.log('Retrieved webhook URL from env:', webhookUrl ? 'URL found' : 'URL not found');
+    console.log('All environment variables:', Object.keys(Deno.env.toObject()));
+    
+    if (!webhookUrl) {
+      console.error('USER_STATUS_WEBHOOK_URL environment variable is not set');
+      return new Response(
+        JSON.stringify({ error: 'Webhook URL not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const { userId, action } = await req.json()
     
     console.log(`Processing user status update - userId: ${userId}, action: ${action}`)
@@ -80,7 +93,7 @@ Deno.serve(async (req) => {
     console.log('Sending webhook payload to N8N:', webhookPayload)
 
     // Call N8N webhook
-    const webhookResponse = await fetch('https://dispatcherpro.app.n8n.cloud/webhook/user-status', {
+    const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

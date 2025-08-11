@@ -12,6 +12,18 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Get the webhook URL from secrets
+    const webhookUrl = Deno.env.get('CREATE_NEW_USER_WEBHOOK_URL');
+    console.log('Retrieved webhook URL from env:', webhookUrl ? 'URL found' : 'URL not found');
+    
+    if (!webhookUrl) {
+      console.error('CREATE_NEW_USER_WEBHOOK_URL environment variable is not set');
+      return new Response(
+        JSON.stringify({ error: 'Webhook URL not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -54,7 +66,7 @@ Deno.serve(async (req) => {
     console.log('Calling N8N webhook with payload:', webhookPayload)
 
     // Call N8N webhook
-    const webhookResponse = await fetch('https://dispatcherpro.app.n8n.cloud/webhook/create-new-user', {
+    const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

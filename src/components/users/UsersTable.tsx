@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/pagination';
 import { useUsers, useDeleteUser, useSuspendUser, useReinstateUser } from '@/hooks/use-users';
 import { useCompanies } from '@/hooks/use-companies';
+import { useAuth } from '@/hooks/use-auth';
 import { Search, MoreHorizontal, Plus, UserX, UserCheck, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -58,6 +59,7 @@ export function UsersTable({ onCreateUser }: UsersTableProps) {
   const totalPages = Math.ceil(totalUsers / usersPerPage);
   
   const { data: companies = [] } = useCompanies();
+  const { user: currentUser } = useAuth();
   const deleteUser = useDeleteUser();
   const suspendUser = useSuspendUser();
   const reinstateUser = useReinstateUser();
@@ -114,8 +116,17 @@ export function UsersTable({ onCreateUser }: UsersTableProps) {
   };
 
   const handleDelete = async (userId: string, userName: string) => {
+    if (!currentUser) {
+      toast({
+        title: 'Error',
+        description: 'Authentication required to delete user.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
-      await deleteUser.mutateAsync(userId);
+      await deleteUser.mutateAsync({ userId, deletedByUserId: currentUser.id });
       toast({
         title: 'User deleted',
         description: `${userName} has been deleted successfully.`,

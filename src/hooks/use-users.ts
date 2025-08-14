@@ -66,7 +66,8 @@ export function useDeleteUser() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (id: string) => userService.deleteUser(id),
+    mutationFn: ({ userId, deletedByUserId }: { userId: string; deletedByUserId: string }) => 
+      userService.deleteUser(userId, deletedByUserId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['companies'] });

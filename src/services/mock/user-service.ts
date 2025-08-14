@@ -208,7 +208,7 @@ export class MockUserService implements UserService {
     return reinstated;
   }
 
-  async deleteUser(id: string): Promise<void> {
+  async deleteUser(id: string, deletedByUserId: string): Promise<void> {
     const userIndex = this.users.findIndex(u => u.id === id);
     if (userIndex === -1) {
       throw new Error(`User with id ${id} not found`);

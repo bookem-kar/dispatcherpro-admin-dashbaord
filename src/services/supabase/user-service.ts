@@ -172,14 +172,20 @@ export class SupabaseUserService implements UserService {
     return transformSupabaseUser(data);
   }
 
-  async deleteUser(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('platform_users')
-      .delete()
-      .eq('id', id);
+  async deleteUser(id: string, deletedByUserId: string): Promise<void> {
+    console.log('Triggering user deletion webhook:', { userId: id, deletedByUserId });
     
+    const { data, error } = await supabase.functions.invoke('delete-user-webhook', {
+      body: { userId: id, deletedByUserId }
+    });
+
     if (error) {
-      throw new Error(`Failed to delete user: ${error.message}`);
+      console.error('Error triggering user deletion webhook:', error);
+      throw new Error(`Failed to trigger user deletion: ${error.message}`);
+    }
+
+    if (!data?.success) {
+      throw new Error('User deletion webhook failed');
     }
   }
 }

@@ -42,10 +42,10 @@ serve(async (req) => {
 
     console.log('Processing company password reset - companyId:', companyId);
 
-    // Fetch company data to get admin_user_id
+    // Fetch company data to get admin_email
     const { data: company, error: companyError } = await supabase
       .from('companies')
-      .select('admin_user_id, name')
+      .select('admin_email, name')
       .eq('id', companyId)
       .single();
 
@@ -57,30 +57,15 @@ serve(async (req) => {
       );
     }
 
-    if (!company.admin_user_id) {
-      console.error('Company has no admin_user_id:', companyId);
+    if (!company.admin_email) {
+      console.error('Company has no admin_email:', companyId);
       return new Response(
-        JSON.stringify({ error: 'Company has no admin user assigned' }),
+        JSON.stringify({ error: 'Company has no admin email assigned' }),
         { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     }
 
-    // Fetch admin user email using admin_user_id
-    const { data: adminUser, error: adminUserError } = await supabase
-      .from('platform_users')
-      .select('email')
-      .eq('id', company.admin_user_id)
-      .single();
-
-    if (adminUserError || !adminUser) {
-      console.error('Failed to fetch admin user:', adminUserError);
-      return new Response(
-        JSON.stringify({ error: 'Admin user not found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-      );
-    }
-
-    const adminEmail = adminUser.email;
+    const adminEmail = company.admin_email;
     console.log('Found admin email for company:', company.name);
 
     // Prepare webhook payload

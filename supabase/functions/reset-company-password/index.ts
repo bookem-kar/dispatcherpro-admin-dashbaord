@@ -42,10 +42,10 @@ serve(async (req) => {
 
     console.log('Processing company password reset - companyId:', companyId);
 
-    // Fetch company data to get admin_email
+    // Fetch company data to get company_uid and admin_email
     const { data: company, error: companyError } = await supabase
       .from('companies')
-      .select('admin_email, name')
+      .select('company_uid, admin_email')
       .eq('id', companyId)
       .single();
 
@@ -65,14 +65,35 @@ serve(async (req) => {
       );
     }
 
-    const adminEmail = company.admin_email;
-    console.log('Found admin email for company:', company.name);
+    // Fetch platform user to get external_user_uid
+    const { data: platformUser, error: platformUserError } = await supabase
+      .from('platform_users')
+      .select('external_user_uid')
+      .eq('email', company.admin_email)
+      .single();
 
-    // Prepare webhook payload
+    if (platformUserError || !platformUser) {
+      console.error('Failed to fetch platform user:', platformUserError);
+      return new Response(
+        JSON.stringify({ error: 'Platform user not found' }),
+        { status: 404, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    if (!platformUser.external_user_uid) {
+      console.error('Platform user has no external_user_uid for email:', company.admin_email);
+      return new Response(
+        JSON.stringify({ error: 'Platform user has no external user UID' }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
+    console.log('Found platform user with external_user_uid:', platformUser.external_user_uid);
+
+    // Prepare webhook payload with only the requested parameters
     const webhookPayload = {
-      admin_email: adminEmail,
-      company_id: companyId,
-      company_name: company.name
+      external_user_uid: platformUser.external_user_uid,
+      company_uid: company.company_uid
     };
 
     console.log('Sending webhook payload for password reset:', webhookPayload);
@@ -98,8 +119,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Password reset email sent successfully',
-        admin_email: adminEmail 
+        message: 'Password reset email sent successfully'
       }),
       { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );

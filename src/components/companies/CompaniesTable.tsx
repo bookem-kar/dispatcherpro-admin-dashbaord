@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Plus, MoreHorizontal, Eye } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Company, CompanyStatus } from '@/types/domain';
-import { useCompanies, useSuspendCompany, useReinstateCompany } from '@/hooks/use-companies';
+import { useCompanies, useSuspendCompany, useReinstateCompany, useResetCompanyPassword } from '@/hooks/use-companies';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 const statusColors: Record<CompanyStatus, string> = {
@@ -30,6 +30,7 @@ export function CompaniesTable({
   } = useCompanies();
   const suspendCompany = useSuspendCompany();
   const reinstateCompany = useReinstateCompany();
+  const resetCompanyPassword = useResetCompanyPassword();
   const {
     toast
   } = useToast();
@@ -65,6 +66,14 @@ export function CompaniesTable({
         description: 'Failed to reinstate company.',
         variant: 'destructive'
       });
+    }
+  };
+
+  const handleResetPassword = async (company: Company) => {
+    try {
+      await resetCompanyPassword.mutateAsync(company.id);
+    } catch (error) {
+      // Error handling is done in the hook
     }
   };
   const formatDate = (dateString?: string) => {
@@ -141,6 +150,11 @@ export function CompaniesTable({
                           View Details
                         </DropdownMenuItem>
                         <DropdownMenuItem>View Users</DropdownMenuItem>
+                        {company.status === 'inactive' && (
+                          <DropdownMenuItem onClick={() => handleResetPassword(company)}>
+                            Resend Password Reset Email
+                          </DropdownMenuItem>
+                        )}
                         {company.status === 'suspended' ? <DropdownMenuItem onClick={() => handleReinstate(company)}>
                             Reinstate Company
                           </DropdownMenuItem> : <DropdownMenuItem onClick={() => handleSuspend(company)}>

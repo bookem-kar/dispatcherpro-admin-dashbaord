@@ -144,6 +144,38 @@ export function useReinstateCompany() {
   });
 }
 
+export function useResetCompanyPassword() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  return useMutation({
+    mutationFn: async (companyId: string) => {
+      const response = await supabase.functions.invoke('reset-company-password', {
+        body: { companyId }
+      });
+      
+      if (response.error) {
+        throw new Error(`Password reset failed: ${response.error.message}`);
+      }
+      
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: 'Password Reset Email Sent',
+        description: `Password reset email has been sent to ${data.admin_email}.`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: 'Failed to send password reset email. Please try again.',
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
 // Update a company
 export function useUpdateCompany() {
   const queryClient = useQueryClient();

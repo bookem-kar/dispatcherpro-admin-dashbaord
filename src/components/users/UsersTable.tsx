@@ -58,7 +58,8 @@ export function UsersTable({ onCreateUser }: UsersTableProps) {
   const totalUsers = usersData?.total || 0;
   const totalPages = Math.ceil(totalUsers / usersPerPage);
   
-  const { data: companies = [] } = useCompanies();
+  const { data: companiesData } = useCompanies();
+  const companies = companiesData?.companies || [];
   const { user: currentUser } = useAuth();
   const deleteUser = useDeleteUser();
   const suspendUser = useSuspendUser();

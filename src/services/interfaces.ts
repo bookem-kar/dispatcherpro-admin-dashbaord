@@ -16,7 +16,7 @@ import type {
 } from '@/types/domain';
 
 export interface CompanyService {
-  listCompanies(filter?: CompanyFilter): Promise<Company[]>;
+  listCompanies(filter?: CompanyFilter): Promise<{ companies: Company[]; total: number }>;
   getCompany(id: string): Promise<Company | null>;
   createCompany(input: CreateCompanyInput): Promise<Company>;
   updateCompany(id: string, patch: Partial<Company>): Promise<Company>;

@@ -57,7 +57,8 @@ export function CreateUserModal({ open, onOpenChange }: CreateUserModalProps) {
   const { toast } = useToast();
   const createUser = useCreateUser();
   
-  const { data: companies = [], isLoading: loadingCompanies } = useCompanies();
+  const { data: companiesData, isLoading: loadingCompanies } = useCompanies();
+  const companies = companiesData?.companies || [];
 
   // Filter companies based on search
   const filteredCompanies = companies.filter(company =>

@@ -36,7 +36,23 @@ function mapSupabaseToCompany(row: any): Company {
 }
 
 export class SupabaseCompanyService implements CompanyService {
-  async listCompanies(filter?: CompanyFilter): Promise<Company[]> {
+  async listCompanies(filter?: CompanyFilter): Promise<{ companies: Company[]; total: number }> {
+    // Build count query
+    let countQuery = supabase.from('companies').select('*', { count: 'exact', head: true });
+    
+    if (filter?.status) {
+      countQuery = countQuery.eq('status', filter.status);
+    }
+
+    if (filter?.planTier) {
+      countQuery = countQuery.eq('plan_tier', filter.planTier);
+    }
+
+    if (filter?.search) {
+      countQuery = countQuery.or(`name.ilike.%${filter.search}%,email.ilike.%${filter.search}%,mc_number.ilike.%${filter.search}%`);
+    }
+
+    // Build data query
     let query = supabase.from('companies').select('*');
 
     if (filter?.status) {
@@ -60,13 +76,24 @@ export class SupabaseCompanyService implements CompanyService {
 
     query = query.order('created_at', { ascending: false });
 
-    const { data, error } = await query;
+    // Execute both queries
+    const [{ count, error: countError }, { data, error }] = await Promise.all([
+      countQuery,
+      query
+    ]);
+
+    if (countError) {
+      throw new Error(`Failed to count companies: ${countError.message}`);
+    }
 
     if (error) {
       throw new Error(`Failed to fetch companies: ${error.message}`);
     }
 
-    return data?.map(mapSupabaseToCompany) || [];
+    return {
+      companies: data?.map(mapSupabaseToCompany) || [],
+      total: count || 0
+    };
   }
 
   async getCompany(id: string): Promise<Company | null> {

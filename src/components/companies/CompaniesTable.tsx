@@ -5,12 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, Plus, MoreHorizontal, Eye } from 'lucide-react';
+import { Search, Plus, MoreHorizontal } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from '@/components/ui/pagination';
 import { Company, CompanyStatus } from '@/types/domain';
 import { useCompanies, useSuspendCompany, useReinstateCompany, useResetCompanyPassword } from '@/hooks/use-companies';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 const statusColors: Record<CompanyStatus, string> = {
   active: 'bg-green-100 text-green-800',
   suspended: 'bg-red-100 text-red-800',
@@ -23,18 +24,33 @@ export function CompaniesTable({
   onCreateCompany
 }: CompaniesTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
   const navigate = useNavigate();
+  
   const {
-    data: companies = [],
+    data: companiesData,
     isLoading
-  } = useCompanies();
+  } = useCompanies({
+    search: searchTerm || undefined,
+    page: currentPage,
+    limit: pageSize
+  });
+
+  const companies = companiesData?.companies || [];
+  const totalCompanies = companiesData?.total || 0;
+  const totalPages = Math.ceil(totalCompanies / pageSize);
   const suspendCompany = useSuspendCompany();
   const reinstateCompany = useReinstateCompany();
   const resetCompanyPassword = useResetCompanyPassword();
   const {
     toast
   } = useToast();
-  const filteredCompanies = companies.filter(company => company.name.toLowerCase().includes(searchTerm.toLowerCase()) || company.companyUid.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
   const handleSuspend = async (company: Company) => {
     try {
       await suspendCompany.mutateAsync({
@@ -80,6 +96,95 @@ export function CompaniesTable({
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString();
   };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const renderPaginationItems = () => {
+    const items = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        items.push(
+          <PaginationItem key={i}>
+            <PaginationLink 
+              onClick={() => handlePageChange(i)}
+              isActive={currentPage === i}
+              className="cursor-pointer"
+            >
+              {i}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      }
+    } else {
+      // Always show first page
+      items.push(
+        <PaginationItem key={1}>
+          <PaginationLink 
+            onClick={() => handlePageChange(1)}
+            isActive={currentPage === 1}
+            className="cursor-pointer"
+          >
+            1
+          </PaginationLink>
+        </PaginationItem>
+      );
+
+      if (currentPage > 3) {
+        items.push(
+          <PaginationItem key="ellipsis1">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+
+      // Show pages around current page
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = start; i <= end; i++) {
+        items.push(
+          <PaginationItem key={i}>
+            <PaginationLink 
+              onClick={() => handlePageChange(i)}
+              isActive={currentPage === i}
+              className="cursor-pointer"
+            >
+              {i}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      }
+
+      if (currentPage < totalPages - 2) {
+        items.push(
+          <PaginationItem key="ellipsis2">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+
+      // Always show last page
+      if (totalPages > 1) {
+        items.push(
+          <PaginationItem key={totalPages}>
+            <PaginationLink 
+              onClick={() => handlePageChange(totalPages)}
+              isActive={currentPage === totalPages}
+              className="cursor-pointer"
+            >
+              {totalPages}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      }
+    }
+    
+    return items;
+  };
   return <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
@@ -114,11 +219,11 @@ export function CompaniesTable({
                 <TableCell colSpan={7} className="text-center py-8">
                   Loading companies...
                 </TableCell>
-              </TableRow> : filteredCompanies.length === 0 ? <TableRow>
+              </TableRow> : companies.length === 0 ? <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   {searchTerm ? 'No companies found matching your search.' : 'No companies yet.'}
                 </TableCell>
-              </TableRow> : filteredCompanies.map(company => <TableRow key={company.id}>
+              </TableRow> : companies.map(company => <TableRow key={company.id}>
                   <TableCell>
                     <div>
                       <div className="font-medium">{company.name}</div>
@@ -167,6 +272,31 @@ export function CompaniesTable({
                 </TableRow>)}
           </TableBody>
         </Table>
+        
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-2 py-4">
+            <div className="text-sm text-muted-foreground">
+              Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCompanies)} of {totalCompanies} companies
+            </div>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                {renderPaginationItems()}
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </CardContent>
     </Card>;
 }

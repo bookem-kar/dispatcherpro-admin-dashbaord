@@ -27,7 +27,7 @@ export function Sidebar() {
   return <div className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
       {/* Logo/Brand */}
       <div className="p-6 border-b border-sidebar-border">
-        <h1 className="text-xl font-bold text-sidebar-foreground">DispatcherPro</h1>
+        <h1 className="text-xl font-bold text-sidebar-foreground">DP Admin Panel </h1>
       </div>
 
       {/* Navigation */}

@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -199,6 +199,8 @@ export type Database = {
           company_id: string | null
           created_at: string
           created_by_user_id: string | null
+          deleted_at: string | null
+          deleted_by_uid: string | null
           email: string
           external_user_uid: string | null
           first_name: string | null
@@ -216,6 +218,8 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_uid?: string | null
           email: string
           external_user_uid?: string | null
           first_name?: string | null
@@ -233,6 +237,8 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_uid?: string | null
           email?: string
           external_user_uid?: string | null
           first_name?: string | null
@@ -303,7 +309,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_company_id: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
+      is_super_admin: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
